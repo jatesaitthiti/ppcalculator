@@ -51,12 +51,14 @@
 
   /* HEADER */
   header {
-    padding: 48px 0 32px;
+    padding: 32px 0 24px;
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
+    gap: 16px;
     border-bottom: 1px solid var(--border);
     margin-bottom: 40px;
+    flex-wrap: wrap;
   }
 
   .logo {
@@ -129,13 +131,13 @@
   }
 
   .channel-tabs {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
   }
 
   .channel-tab {
-    padding: 8px 20px;
+    padding: 8px 12px;
     border: 1px solid var(--border);
     background: transparent;
     color: var(--muted);
@@ -144,6 +146,7 @@
     cursor: pointer;
     transition: all 0.15s;
     letter-spacing: 1px;
+    text-align: center;
   }
 
   .channel-tab:hover { border-color: var(--accent); color: var(--accent); }
@@ -472,12 +475,21 @@
 
   @media (max-width: 768px) {
     .main-layout { grid-template-columns: 1fr; }
-    .grid, .grid-3 { grid-template-columns: 1fr; }
+    .grid { grid-template-columns: 1fr; }
+    .grid-3 { grid-template-columns: 1fr 1fr; }
     .units-row { grid-template-columns: 1fr; }
     .breakdown-grid { grid-template-columns: 1fr 1fr; }
-    .logo-title { font-size: 48px; }
+    .logo-title { font-size: 32px; }
     .summary-panel { position: static; }
     .breakeven-box { flex-direction: column; gap: 12px; }
+    header { flex-direction: column; align-items: flex-start; }
+    .header-right { display: flex; gap: 8px; flex-wrap: wrap; }
+  }
+
+  @media (max-width: 480px) {
+    .grid-3 { grid-template-columns: 1fr; }
+    .breakdown-grid { grid-template-columns: 1fr; }
+    .container { padding: 0 16px 60px; }
   }
 </style>
 </head>
@@ -490,7 +502,7 @@
       <span class="logo-title">PUREPULSE CALCULATOR</span>
       <span class="logo-sub">Energy Gel — Cost & Profit Analysis</span>
     </div>
-    <div style="display:flex; gap:8px; align-items:center;">
+    <div class="header-right" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
       <button class="io-btn" id="importBtn" onclick="document.getElementById('importFile').click()">⬆ Import</button>
       <input type="file" id="importFile" accept=".json" style="display:none">
       <button class="io-btn io-btn-accent" id="exportBtn">⬇ Export</button>
@@ -525,7 +537,7 @@
           <button class="channel-tab active" data-channel="direct">Direct</button>
           <button class="channel-tab" data-channel="shopee">Shopee</button>
           <button class="channel-tab" data-channel="lazada">Lazada</button>
-          <button class="channel-tab" data-channel="tiktok">TikTok Shop</button>
+          <button class="channel-tab" data-channel="tiktok">TikTok</button>
         </div>
       </div>
     </div>
@@ -831,10 +843,10 @@
 
 <script>
   const CHANNEL_DEFAULTS = {
-    direct:  { commission: 0,   payment: 1.5, voucher: 0,   hint: 'ขายตรง — ไม่มี GP' },
-    shopee:  { commission: 3.5, payment: 2,   voucher: 2,   hint: 'GP ~3.5%' },
-    lazada:  { commission: 4.5, payment: 2,   voucher: 2,   hint: 'GP ~4.5%' },
-    tiktok:  { commission: 5,   payment: 1.5, voucher: 3,   hint: 'GP ~5% + Affiliate สูง' },
+    direct:  { commission: 0,    payment: 0,   voucher: 0,   hint: 'ขายตรง — ไม่มี GP' },
+    shopee:  { commission: 5.35, payment: 2,   voucher: 2,   hint: 'Non-mall FMCG/Health ~5.35%' },
+    lazada:  { commission: 7,    payment: 2,   voucher: 2,   hint: 'Marketplace FMCG ~7%' },
+    tiktok:  { commission: 5,    payment: 3.21,voucher: 0,   hint: 'FMCG ~5% + Txn fee 3.21%' },
   };
 
   let currentChannel = 'direct';

@@ -515,7 +515,7 @@
       <div class="field">
         <div class="field-label">Stock สินค้า (จำนวนผลิต)</div>
         <div class="input-wrap">
-          <input type="number" id="unitsSold" value="500" min="0" step="10">
+          <input type="number" id="unitsSold" value="9000" min="0" step="10">
           <span class="input-unit">ซอง</span>
         </div>
       </div>
@@ -726,6 +726,22 @@
         </div>
       </div>
 
+      <!-- RETAIL -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">🏪 Retail</span>
+        </div>
+        <div class="grid">
+          <div class="field">
+            <div class="field-label">Commission Fee (Retail / Distributor)</div>
+            <div class="input-wrap">
+              <input type="number" id="retailCommission" value="0" min="0" max="60" step="0.5" class="pct">
+              <span class="input-unit">%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- COST BREAKDOWN VISUAL -->
       <div class="card">
         <div class="card-header">
@@ -776,6 +792,10 @@
       <div class="summary-row">
         <span class="summary-key">Marketing รวม</span>
         <span class="summary-val" id="s-mkt">—</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-key">Retail รวม</span>
+        <span class="summary-val" id="s-retail">—</span>
       </div>
       <div class="divider" style="border-color: rgba(0,0,0,0.2); margin: 8px 0;"></div>
 
@@ -843,10 +863,13 @@
     const discAmt   = sell * (v('discount') / 100);
     const mkt       = affAmt + adsAmt + discAmt + v('mktOther');
 
+    // Retail
+    const retail = sell * (v('retailCommission') / 100);
+
     // Overhead
     const oh = 0;
 
-    const totalCost = cogs + ff + platform + mkt;
+    const totalCost = cogs + ff + platform + mkt + retail;
     const profit = sell - totalCost;
     const margin = sell > 0 ? (profit / sell) * 100 : 0;
 
@@ -857,6 +880,7 @@
     document.getElementById('s-ff').textContent = fmt(ff);
     document.getElementById('s-platform').textContent = fmt(platform);
     document.getElementById('s-mkt').textContent = fmt(mkt);
+    document.getElementById('s-retail').textContent = fmt(retail);
     document.getElementById('s-totalCost').textContent = fmt(totalCost);
 
     const profitEl = document.getElementById('profitNum');
@@ -897,6 +921,7 @@
       { label: 'Fulfillment', val: ff },
       { label: 'Platform', val: platform },
       { label: 'Marketing', val: mkt },
+      { label: 'Retail', val: retail },
     ];
 
     const grid = document.getElementById('breakdownGrid');
@@ -943,7 +968,8 @@
     'rawMat','primaryPkg','secondaryPkg','labor','qc','cogsOther',
     'warehouse','pickpack','shipping','returnLogis','insurance','ffOther',
     'commission','paymentFee','voucher','flashSale','freeShip','platformOther',
-    'affiliate','ads','discount','mktOther'
+    'affiliate','ads','discount','mktOther',
+    'retailCommission'
   ];
 
   function showToast(msg) {

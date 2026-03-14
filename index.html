@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PUREPULSE CALCULATOR — Energy Gel Cost Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Noto+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --surface: #141414;
+    --card: #1a1a1a;
+    --border: #2a2a2a;
+    --accent: #e8ff47;
+    --accent2: #ff6b35;
+    --text: #f0f0f0;
+    --muted: #666;
+    --green: #4ade80;
+    --red: #f87171;
+    --yellow: #fbbf24;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans Thai', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HEADER */
+  header {
+    padding: 48px 0 32px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+
+  .logo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .logo-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .logo-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    line-height: 1;
+    color: var(--accent);
+    letter-spacing: 2px;
+  }
+
+  .logo-sub {
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  .header-badge {
+    background: var(--accent);
+    color: #000;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 6px 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .io-btn {
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+  .io-btn:hover { border-color: var(--text); color: var(--text); }
+  .io-btn-accent { border-color: var(--accent); color: var(--accent); }
+  .io-btn-accent:hover { background: var(--accent); color: #000; }
+
+  /* CHANNEL SELECTOR */
+  .channel-section {
+    margin-bottom: 32px;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .channel-tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .channel-tab {
+    padding: 8px 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 1px;
+  }
+
+  .channel-tab:hover { border-color: var(--accent); color: var(--accent); }
+  .channel-tab.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+  /* GRID LAYOUT */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin-bottom: 2px;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2px;
+    margin-bottom: 2px;
+  }
+
+  .card {
+    background: var(--card);
+    padding: 24px;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .card-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 1px;
+    color: var(--text);
+  }
+
+  .card-icon {
+    font-size: 18px;
+    opacity: 0.5;
+  }
+
+  /* INPUT FIELDS */
+  .field {
+    margin-bottom: 14px;
+  }
+
+  .field-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .field-hint {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: #444;
+  }
+
+  .input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .input-wrap input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 40px 10px 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s;
+    -moz-appearance: textfield;
+  }
+
+  .input-wrap input::-webkit-outer-spin-button,
+  .input-wrap input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  .input-wrap input:focus { border-color: var(--accent); }
+
+  .input-unit {
+    position: absolute;
+    right: 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  .input-wrap input.pct { padding-right: 28px; }
+
+  /* PLATFORM RATES */
+  .platform-rates {
+    display: none;
+  }
+  .platform-rates.visible { display: block; }
+
+  .rate-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .rate-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    width: 80px;
+    flex-shrink: 0;
+  }
+
+  .rate-input {
+    flex: 1;
+  }
+
+  /* SUMMARY PANEL */
+  .summary-panel {
+    background: var(--accent);
+    padding: 32px;
+    position: sticky;
+    top: 24px;
+  }
+
+  .summary-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: #000;
+    letter-spacing: 2px;
+    margin-bottom: 24px;
+  }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.15);
+  }
+
+  .summary-row:last-child { border-bottom: none; }
+
+  .summary-key {
+    font-size: 12px;
+    color: rgba(0,0,0,0.6);
+    font-weight: 500;
+  }
+
+  .summary-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+    color: #000;
+  }
+
+  .summary-total {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid rgba(0,0,0,0.3);
+  }
+
+  .profit-big {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 56px;
+    line-height: 1;
+    color: #000;
+  }
+
+  .profit-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: rgba(0,0,0,0.5);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .profit-negative { color: var(--red) !important; }
+  .profit-warning { color: var(--yellow) !important; }
+
+  .margin-bar {
+    margin-top: 16px;
+    height: 6px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 0;
+    overflow: hidden;
+  }
+
+  .margin-fill {
+    height: 100%;
+    background: #000;
+    transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .margin-fill.low { background: var(--red); }
+  .margin-fill.mid { background: var(--yellow); }
+  .margin-fill.good { background: #000; }
+
+  /* FULL WIDTH CARD */
+  .full-card {
+    background: var(--card);
+    padding: 24px;
+    margin-bottom: 2px;
+  }
+
+  /* COST BREAKDOWN */
+  .breakdown-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 16px;
+  }
+
+  .breakdown-item {
+    background: var(--surface);
+    padding: 14px;
+  }
+
+  .breakdown-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .breakdown-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 16px;
+    color: var(--text);
+  }
+
+  .breakdown-pct {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* LAYOUT FOR MAIN */
+  .main-layout {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 2px;
+    align-items: start;
+  }
+
+  .left-col { display: flex; flex-direction: column; gap: 2px; }
+
+  /* UNITS SOLD CONFIG */
+  .units-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2px;
+  }
+
+  /* SCENARIO TAG */
+  .scenario-tag {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
+
+  .tag-loss { background: var(--red); color: #000; }
+  .tag-low { background: var(--yellow); color: #000; }
+  .tag-ok { background: #4ade80; color: #000; }
+  .tag-great { background: var(--accent); color: #000; }
+
+  /* BREAK EVEN */
+  .breakeven-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 16px;
+    margin-top: 16px;
+    display: flex;
+    gap: 24px;
+  }
+
+  .be-item { flex: 1; }
+  .be-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+  .be-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .be-unit { font-size: 12px; color: var(--muted); }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 12px 0;
+  }
+
+  /* TOOLTIP */
+  [data-tip] { position: relative; cursor: help; }
+  [data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: #fff;
+    font-size: 11px;
+    padding: 5px 10px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    font-family: 'DM Mono', monospace;
+    z-index: 100;
+  }
+  [data-tip]:hover::after { opacity: 1; }
+
+  @media (max-width: 768px) {
+    .main-layout { grid-template-columns: 1fr; }
+    .grid, .grid-3 { grid-template-columns: 1fr; }
+    .units-row { grid-template-columns: 1fr; }
+    .breakdown-grid { grid-template-columns: 1fr 1fr; }
+    .logo-title { font-size: 48px; }
+    .summary-panel { position: static; }
+    .breakeven-box { flex-direction: column; gap: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="logo">
+      <span class="logo-label">Product Calculator</span>
+      <span class="logo-title">PUREPULSE CALCULATOR</span>
+      <span class="logo-sub">Energy Gel — Cost & Profit Analysis</span>
+    </div>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <button class="io-btn" id="importBtn" onclick="document.getElementById('importFile').click()">⬆ Import</button>
+      <input type="file" id="importFile" accept=".json" style="display:none">
+      <button class="io-btn io-btn-accent" id="exportBtn">⬇ Export</button>
+      <div class="header-badge">v1.0</div>
+    </div>
+  </header>
+  <div id="toastMsg" style="display:none; position:fixed; bottom:32px; left:50%; transform:translateX(-50%); background:#1a1a1a; border:1px solid var(--accent); color:var(--accent); font-family:'DM Mono',monospace; font-size:12px; padding:10px 24px; z-index:999; letter-spacing:1px;"></div>
+
+  <!-- CHANNEL + SELLING PRICE -->
+  <div class="full-card" style="margin-bottom:2px;">
+    <div class="card-header">
+      <span class="card-title">การตั้งค่าหลัก</span>
+    </div>
+    <div class="grid-3">
+      <div class="field">
+        <div class="field-label">ราคาขาย / ซอง</div>
+        <div class="input-wrap">
+          <input type="number" id="sellingPrice" value="95" min="0" step="1">
+          <span class="input-unit">฿</span>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-label">Stock สินค้า (จำนวนผลิต)</div>
+        <div class="input-wrap">
+          <input type="number" id="unitsSold" value="500" min="0" step="10">
+          <span class="input-unit">ซอง</span>
+        </div>
+      </div>
+      <div class="field">
+        <div class="field-label">ช่องทางขาย (Channel)</div>
+        <div class="channel-tabs" id="channelTabs">
+          <button class="channel-tab active" data-channel="direct">Direct</button>
+          <button class="channel-tab" data-channel="shopee">Shopee</button>
+          <button class="channel-tab" data-channel="lazada">Lazada</button>
+          <button class="channel-tab" data-channel="tiktok">TikTok Shop</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-layout">
+    <div class="left-col">
+
+      <!-- PRODUCTION COST -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">🏭 ต้นทุนการผลิต (COGS)</span>
+        </div>
+        <div class="grid">
+          <div class="field">
+            <div class="field-label">วัตถุดิบ (Raw Materials)</div>
+            <div class="input-wrap">
+              <input type="number" id="rawMat" value="0" min="0" step="0.5">
+              <span class="input-unit">฿</span>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label">บรรจุภัณฑ์ปฐมภูมิ (Sachet/Pouch)</div>
+            <div class="input-wrap">
+              <input type="number" id="primaryPkg" value="0" min="0" step="0.5">
+              <span class="input-unit">฿</span>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label">บรรจุภัณฑ์ทุติยภูมิ (Box/Carton)</div>
+            <div class="input-wrap">
+              <input type="number" id="secondaryPkg" value="0" min="0" step="0.5">
+              <span class="input-unit">฿</span>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label">ค่าแรงผลิต / OEM</div>
+            <div class="input-wrap">
+              <input type="number" id="labor" value="0" min="0" step="0.5">
+              <span class="input-unit">฿</span>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label" data-tip="Lab, FDA, อย. เฉลี่ยต่อหน่วย">ค่า QC / Lab Testing</div>
+            <div class="input-wrap">
+              <input type="number" id="qc" value="0" min="0" step="0.5">
+              <span class="input-unit">฿</span>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label">อื่นๆ (COGS)</div>
+            <div class="input-wrap">
+              <input type="number" id="cogsOther" value="0" min="0" step="0.5">
+              <span class="input-unit">฿</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FULFILLMENT -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">📦 Fulfillment & Logistics</span>
+        </div>
+        <div class="grid">
+          <div class="field">
+            <div class="field-label">ค่าคลังสินค้า (Warehousing)</div>
+            <div class="input-wrap">
+              <input type="number" id="warehouse" value="0" min="0" step="0.5">
+              <span class="input-unit">฿</span>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label">ค่าแพ็คสินค้า (Pick & Pack)</div>
+            <div class="input-wrap">
+              <input type="number" id="pickpack" value="0" min="0" step="0.5">
+              <span class="input-unit">฿</span>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label">ค่าจัดส่ง (Last Mile Shipping)</div>
+            <div class="input-wrap">
+              <input type="number" id="shipping" value="0" min="0" step="1">
+              <span class="input-unit">฿</span>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label" data-tip="สัดส่วน return คูณต้นทุนจัดการ">ค่า Return Logistics</div>
+            <div class="input-wrap">
+              <input type="number" id="returnLogis" value="0" min="0" step="0.5">
+              <span class="input-unit">฿</span>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label">ค่าประกันสินค้า (Cargo Insurance)</div>
+            <div class="input-wrap">
+              <input type="number" id="insurance" value="0" min="0" step="0.5">
+              <span class="input-unit">฿</span>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label">อื่นๆ (Fulfillment)</div>
+            <div class="input-wrap">
+              <input type="number" id="ffOther" value="0" min="0" step="0.5">
+              <span class="input-unit">฿</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PLATFORM -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">🛒 Platform & Marketplace</span>
+        </div>
+        <div class="grid">
+          <div class="field">
+            <div class="field-label">Commission Fee
+              <span class="field-hint" id="commissionHint">—</span>
+            </div>
+            <div class="input-wrap">
+              <input type="number" id="commission" value="0" min="0" max="30" step="0.5" class="pct">
+              <span class="input-unit">%</span>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label">Payment Processing Fee</div>
+            <div class="input-wrap">
+              <input type="number" id="paymentFee" value="0" min="0" max="10" step="0.1" class="pct">
+              <span class="input-unit">%</span>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label">Voucher / Coin Cashback</div>
+            <div class="input-wrap">
+              <input type="number" id="voucher" value="0" min="0" max="20" step="0.5" class="pct">
+              <span class="input-unit">%</span>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label">Flash Sale / Campaign Fee</div>
+            <div class="input-wrap">
+              <input type="number" id="flashSale" value="0" min="0" step="0.5">
+              <span class="input-unit">฿</span>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label" data-tip="ส่วนที่ Seller แบกรับ">Free Shipping Subsidy</div>
+            <div class="input-wrap">
+              <input type="number" id="freeShip" value="0" min="0" step="0.5">
+              <span class="input-unit">฿</span>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label">อื่นๆ (Platform)</div>
+            <div class="input-wrap">
+              <input type="number" id="platformOther" value="0" min="0" step="0.5">
+              <span class="input-unit">฿</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MARKETING -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">📣 Marketing & Sales</span>
+        </div>
+        <div class="grid">
+          <div class="field">
+            <div class="field-label">Affiliate Commission</div>
+            <div class="input-wrap">
+              <input type="number" id="affiliate" value="0" min="0" max="30" step="0.5" class="pct">
+              <span class="input-unit">%</span>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label">Ads (Shopee/TikTok/Meta)</div>
+            <div class="input-wrap">
+              <input type="number" id="ads" value="0" min="0" max="50" step="0.5" class="pct">
+              <span class="input-unit">%</span>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label">ส่วนลด / โปรโมชัน</div>
+            <div class="input-wrap">
+              <input type="number" id="discount" value="0" min="0" max="50" step="0.5" class="pct">
+              <span class="input-unit">%</span>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label">อื่นๆ (Marketing)</div>
+            <div class="input-wrap">
+              <input type="number" id="mktOther" value="0" min="0" step="0.5">
+              <span class="input-unit">฿</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COST BREAKDOWN VISUAL -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Cost Breakdown</span>
+        </div>
+        <div id="breakdownGrid" class="breakdown-grid"></div>
+        <div class="breakeven-box" id="breakEvenBox">
+          <div class="be-item">
+            <div class="be-label">BREAK-EVEN UNITS</div>
+            <div class="be-val" id="beUnits">—</div>
+            <div class="be-unit">ซองขั้นต่ำที่ต้องขาย</div>
+          </div>
+          <div class="be-item">
+            <div class="be-label">EFFECTIVE PRICE FLOOR</div>
+            <div class="be-val" id="bePrice">—</div>
+            <div class="be-unit">฿ / ซอง (ต้นทุนรวม)</div>
+          </div>
+          <div class="be-item">
+            <div class="be-label">TOTAL REVENUE (STOCK)</div>
+            <div class="be-val" id="monthlyRev">—</div>
+            <div class="be-unit">฿ (ถ้าขายหมด)</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end left col -->
+
+    <!-- SUMMARY PANEL -->
+    <div class="summary-panel" id="summaryPanel">
+      <div class="summary-title">PROFIT SUMMARY</div>
+
+      <div class="summary-row">
+        <span class="summary-key">ราคาขาย</span>
+        <span class="summary-val" id="s-price">—</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-key">COGS รวม</span>
+        <span class="summary-val" id="s-cogs">—</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-key">Fulfillment รวม</span>
+        <span class="summary-val" id="s-ff">—</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-key">Platform รวม</span>
+        <span class="summary-val" id="s-platform">—</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-key">Marketing รวม</span>
+        <span class="summary-val" id="s-mkt">—</span>
+      </div>
+      <div class="divider" style="border-color: rgba(0,0,0,0.2); margin: 8px 0;"></div>
+
+      <div class="summary-row">
+        <span class="summary-key" style="font-weight:600; color:#000;">ต้นทุนรวม / ซอง</span>
+        <span class="summary-val" id="s-totalCost" style="color:#000; font-weight:600;">—</span>
+      </div>
+
+      <div class="summary-total">
+        <div class="profit-label">NET PROFIT / ซอง</div>
+        <div class="profit-big" id="profitNum">—</div>
+        <div style="display:flex; align-items:center; gap:12px; margin-top:8px;">
+          <div>
+            <div class="profit-label" style="margin-bottom:2px;">MARGIN</div>
+            <div style="font-family:'DM Mono',monospace; font-size:18px; color:#000;" id="marginPct">—</div>
+          </div>
+          <div id="scenarioTag"></div>
+        </div>
+        <div class="margin-bar">
+          <div class="margin-fill" id="marginFill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div style="margin-top: 20px; border-top: 1px solid rgba(0,0,0,0.2); padding-top: 16px;">
+        <div class="profit-label">TOTAL NET PROFIT (STOCK)</div>
+        <div style="font-family:'Bebas Neue',sans-serif; font-size:32px; color:#000;" id="monthlyProfit">—</div>
+      </div>
+    </div>
+
+  </div><!-- end main layout -->
+
+</div>
+
+<script>
+  const CHANNEL_DEFAULTS = {
+    direct:  { commission: 0,   payment: 1.5, voucher: 0,   hint: 'ขายตรง — ไม่มี GP' },
+    shopee:  { commission: 3.5, payment: 2,   voucher: 2,   hint: 'GP ~3.5%' },
+    lazada:  { commission: 4.5, payment: 2,   voucher: 2,   hint: 'GP ~4.5%' },
+    tiktok:  { commission: 5,   payment: 1.5, voucher: 3,   hint: 'GP ~5% + Affiliate สูง' },
+  };
+
+  let currentChannel = 'direct';
+
+  function v(id) { return parseFloat(document.getElementById(id).value) || 0; }
+
+  function calc() {
+    const sell = v('sellingPrice');
+    const units = v('unitsSold');
+
+    // COGS
+    const cogs = v('rawMat') + v('primaryPkg') + v('secondaryPkg') + v('labor') + v('qc') + v('cogsOther');
+
+    // Fulfillment (fixed ฿)
+    const ff = v('warehouse') + v('pickpack') + v('shipping') + v('returnLogis') + v('insurance') + v('ffOther');
+
+    // Platform (mix of % and fixed)
+    const commAmt   = sell * (v('commission') / 100);
+    const payAmt    = sell * (v('paymentFee') / 100);
+    const voucherAmt= sell * (v('voucher') / 100);
+    const platform  = commAmt + payAmt + voucherAmt + v('flashSale') + v('freeShip') + v('platformOther');
+
+    // Marketing (mix)
+    const affAmt    = sell * (v('affiliate') / 100);
+    const adsAmt    = sell * (v('ads') / 100);
+    const discAmt   = sell * (v('discount') / 100);
+    const mkt       = affAmt + adsAmt + discAmt + v('mktOther');
+
+    // Overhead
+    const oh = 0;
+
+    const totalCost = cogs + ff + platform + mkt;
+    const profit = sell - totalCost;
+    const margin = sell > 0 ? (profit / sell) * 100 : 0;
+
+    // Update summary
+    const fmt = n => '฿' + n.toFixed(2);
+    document.getElementById('s-price').textContent = fmt(sell);
+    document.getElementById('s-cogs').textContent = fmt(cogs);
+    document.getElementById('s-ff').textContent = fmt(ff);
+    document.getElementById('s-platform').textContent = fmt(platform);
+    document.getElementById('s-mkt').textContent = fmt(mkt);
+    document.getElementById('s-totalCost').textContent = fmt(totalCost);
+
+    const profitEl = document.getElementById('profitNum');
+    profitEl.textContent = (profit >= 0 ? '+' : '') + profit.toFixed(2);
+    profitEl.className = 'profit-big' + (profit < 0 ? ' profit-negative' : '');
+
+    const marginEl = document.getElementById('marginPct');
+    marginEl.textContent = margin.toFixed(1) + '%';
+
+    const fill = document.getElementById('marginFill');
+    const fillPct = Math.max(0, Math.min(100, margin));
+    fill.style.width = fillPct + '%';
+
+    // Scenario
+    const tag = document.getElementById('scenarioTag');
+    let tagClass, tagText;
+    if (profit < 0)       { tagClass='tag-loss'; tagText='LOSS'; }
+    else if (margin < 10) { tagClass='tag-low';  tagText='TIGHT'; }
+    else if (margin < 25) { tagClass='tag-ok';   tagText='OK'; }
+    else                  { tagClass='tag-great'; tagText='HEALTHY'; }
+    tag.innerHTML = `<span class="scenario-tag ${tagClass}">${tagText}</span>`;
+    fill.className = 'margin-fill ' + (profit < 0 ? 'low' : margin < 20 ? 'mid' : 'good');
+
+    // Stock
+    const monthRev = sell * units;
+    const monthProfit = profit * units;
+    document.getElementById('monthlyRev').textContent = Math.round(monthRev).toLocaleString();
+    document.getElementById('monthlyProfit').textContent = (monthProfit >= 0 ? '+' : '') + Math.round(monthProfit).toLocaleString() + ' ฿';
+
+    // Break even
+    document.getElementById('beUnits').textContent = profit > 0 ? Math.ceil(0 / profit) || '—' : '—';
+    document.getElementById('bePrice').textContent = totalCost.toFixed(0);
+    document.getElementById('monthlyRev').textContent = Math.round(monthRev).toLocaleString();
+
+    // Breakdown
+    const groups = [
+      { label: 'COGS', val: cogs },
+      { label: 'Fulfillment', val: ff },
+      { label: 'Platform', val: platform },
+      { label: 'Marketing', val: mkt },
+    ];
+
+    const grid = document.getElementById('breakdownGrid');
+    grid.innerHTML = groups.map(g => {
+      const pct = sell > 0 ? (g.val / sell * 100).toFixed(1) : '0';
+      return `<div class="breakdown-item">
+        <div class="breakdown-label">${g.label}</div>
+        <div class="breakdown-val">฿${g.val.toFixed(2)}</div>
+        <div class="breakdown-pct">${pct}% of price</div>
+      </div>`;
+    }).join('') +
+    `<div class="breakdown-item" style="background: var(--accent); ">
+      <div class="breakdown-label" style="color:rgba(0,0,0,0.6)">TOTAL COST</div>
+      <div class="breakdown-val" style="color:#000">฿${totalCost.toFixed(2)}</div>
+      <div class="breakdown-pct" style="color:rgba(0,0,0,0.5)">${sell > 0 ? (totalCost/sell*100).toFixed(1) : 0}% of price</div>
+    </div>`;
+  }
+
+  // Channel tabs
+  document.getElementById('channelTabs').addEventListener('click', e => {
+    if (!e.target.matches('.channel-tab')) return;
+    document.querySelectorAll('.channel-tab').forEach(t => t.classList.remove('active'));
+    e.target.classList.add('active');
+    currentChannel = e.target.dataset.channel;
+    const d = CHANNEL_DEFAULTS[currentChannel];
+    document.getElementById('commission').value = d.commission;
+    document.getElementById('paymentFee').value = d.payment;
+    document.getElementById('voucher').value = d.voucher;
+    document.getElementById('commissionHint').textContent = d.hint;
+    calc();
+  });
+
+  // Init hint
+  document.getElementById('commissionHint').textContent = CHANNEL_DEFAULTS.direct.hint;
+
+  // Live calc on all inputs
+  document.querySelectorAll('input[type=number]').forEach(el => {
+    el.addEventListener('input', calc);
+  });
+
+  // === EXPORT / IMPORT ===
+  const FIELD_IDS = [
+    'sellingPrice','unitsSold',
+    'rawMat','primaryPkg','secondaryPkg','labor','qc','cogsOther',
+    'warehouse','pickpack','shipping','returnLogis','insurance','ffOther',
+    'commission','paymentFee','voucher','flashSale','freeShip','platformOther',
+    'affiliate','ads','discount','mktOther'
+  ];
+
+  function showToast(msg) {
+    const t = document.getElementById('toastMsg');
+    t.textContent = msg;
+    t.style.display = 'block';
+    setTimeout(() => t.style.display = 'none', 2500);
+  }
+
+  document.getElementById('exportBtn').addEventListener('click', () => {
+    const data = { channel: currentChannel };
+    FIELD_IDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) data[id] = el.value;
+    });
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const now = new Date();
+    const stamp = now.getFullYear() + '' +
+      String(now.getMonth()+1).padStart(2,'0') +
+      String(now.getDate()).padStart(2,'0');
+    a.download = `purepulse-${stamp}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('✓ Exported successfully');
+  });
+
+  document.getElementById('importFile').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        FIELD_IDS.forEach(id => {
+          if (data[id] !== undefined) {
+            const el = document.getElementById(id);
+            if (el) el.value = data[id];
+          }
+        });
+        // restore channel
+        if (data.channel) {
+          document.querySelectorAll('.channel-tab').forEach(t => {
+            t.classList.toggle('active', t.dataset.channel === data.channel);
+          });
+          currentChannel = data.channel;
+          const d = CHANNEL_DEFAULTS[currentChannel] || CHANNEL_DEFAULTS.direct;
+          document.getElementById('commissionHint').textContent = d.hint;
+        }
+        calc();
+        showToast('✓ Imported successfully');
+      } catch {
+        showToast('✗ ไฟล์ไม่ถูกต้อง');
+      }
+      e.target.value = '';
+    };
+    reader.readAsText(file);
+  });
+
+  // Initial calc
+  calc();
+</script>
+</body>
+</html>
